@@ -31,7 +31,7 @@ def section_personal():
     print("Typing name...")
     fullname = names.get_full_name(random.choice(gender))
     driver.find_element_by_id("name").send_keys(fullname)
-    print("Hallo, "+fullname)
+    print("Hallo, " + fullname)
     clik_RCK(1)
     print("Selecting gender...")
     wait.until(EC.presence_of_element_located((By.ID, "female")))
@@ -87,30 +87,43 @@ def check_element_exists(x):
     return True
 
 def repin():
-    wait = WebDriverWait(driver, 1000)
+    statue = False
+    wait = WebDriverWait(driver, 100)
     f = open("url.txt", "r")
     for i in f:
         print("Opening "+i)
         driver.get(i)
-        print("Save picture..")
-        try:
+        if (choice == 'p') & (statue == False):
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.DgX.Hsu")))
+            time.sleep(2)
+            print("Save picture..")
+            driver.find_element_by_css_selector("div.DgX.Hsu").click()
+        else:
             wait.until(EC.presence_of_element_located((By.XPATH,"//div[@data-test-id='SaveButton']")))
+            time.sleep(2)
+            print("Save picture..")
             elem=driver.find_element_by_xpath("//div[@data-test-id='SaveButton']")
             elem.click()
-        except NoSuchElementException:
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.DgX.Hsu")))
-            driver.find_element_by_css_selector("div.DgX.Hsu").click()
 
-        if check_element_exists("//div[@data-test-id='boardWithoutSection']"):
+        if statue:
             wait.until(EC.presence_of_element_located((By.XPATH,"//div[@data-test-id='boardWithoutSection']")))
+            print("wait board...")
+            time.sleep(2)
             driver.find_element_by_xpath("//div[@data-test-id='boardWithoutSection']").click()
-            driver.find_element_by_xpath("//div[@data-test-id='boardWithoutSection']").click()
-        else:
+            time.sleep(2)
+            continue
+        try:
             wait.until(EC.presence_of_element_located((By.ID,"boardEditName")))
             print("Creating board...")
             driver.find_element_by_id("boardEditName").send_keys(random.choice(category))
             driver.find_element_by_id("boardEditName").send_keys(Keys.ENTER)
             print("Picture saved.")
+            statue = True
+        except NoSuchElementException:
+            wait.until(EC.presence_of_element_located((By.XPATH,"//div[@data-test-id='boardWithoutSection']")))
+            print("wait board")
+            time.sleep(2)
+            driver.find_element_by_xpath("//div[@data-test-id='boardWithoutSection']").click()
         time.sleep(5)
 
 
@@ -122,7 +135,11 @@ def bot(driver):
     elem_pass = driver.find_element_by_id("password")
     elem_email.send_keys(email)
     elem_pass.send_keys("password123")
-    elem_pass.send_keys(Keys.ENTER)
+    if choice == 'n':
+        driver.find_element_by_id("age").send_keys(str(randint(19,27)))
+        driver.find_element_by_id("age").send_keys(Keys.ENTER)
+    else:
+        elem_pass.send_keys(Keys.ENTER)
     if choice == 'b':
         section_business()
     else:
